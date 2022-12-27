@@ -1,6 +1,11 @@
 import threading
 
 
+def download(session, url):
+    with session.get(url) as response:
+        return response.content
+
+
 class LinkedList:
 
     def __init__(self, key=None, value=None):
@@ -32,7 +37,12 @@ class LRUCache:
         self.cache = dict()
         self.head_node = None
         self.tail_node = None
-        self.lock = threading.Lock()
+        self.writer = 0
+        self.reader = 0
+        self.download_mutex = threading.Lock()
+        self.read_mutex = threading.Lock()
+        self.write_mutex = threading.Lock()
+        self.lock_cache_mutex = threading.Lock()
 
     def _insert_head(self, node):
         if self.head_node is None:
@@ -53,19 +63,17 @@ class LRUCache:
     def _is_in_cache(self, key):
         return key in self.cache
 
-    def get(self, key):
-        if self._is_in_cache(key):
-            return self.cache[key]
-        return None
+    def _read_from_cache(self, key):
+        return self.cache[key]
 
-    def put(self, key, value):
+    def _write_to_cache(self, key, value):
         if len(self.cache) == self.capacity:
             self._remove_tail()
         node = LinkedList(key, value)
         self._insert_head(node)
         self.cache[key] = node
 
-    def sort_cache(self, key):
+    def _sort_cache(self, key):
         if key == self.head_node.key:
             return
         node = self.cache[key]
@@ -73,3 +81,49 @@ class LRUCache:
             self.tail_node = self.tail_node.prev_node
         node.remove()
         self._insert_head(node)
+
+    def _handle_cache(self, key, value):
+        self.write_mutex.acquire()
+        self.writer += 1
+        if self.writer == 1:
+            self.download_mutex.acquire()
+        self.write_mutex.release()
+
+        self.lock_cache_mutex.acquire()
+        if self._is_in_cache(key):
+            self._sort_cache(key)
+        else:
+            self._write_to_cache(key, value)
+        self.lock_cache_mutex.release()
+
+        self.write_mutex.acquire()
+        self.writer -= 1
+        if self.writer == 0:
+            self.download_mutex.release()
+        self.write_mutex.release()
+
+    def download_image(self, session, url):
+        # thread_name = threading.current_thread().name
+        # print(thread_name)
+        self.download_mutex.acquire()
+        self.read_mutex.acquire()
+        self.reader += 1
+        if self.reader == 1:
+            self.lock_cache_mutex.acquire()
+        self.read_mutex.release()
+        self.download_mutex.release()
+
+        value = None
+        if self._is_in_cache(url):
+            value = self._read_from_cache(url)
+
+        self.read_mutex.acquire()
+        self.reader -= 1
+        if self.reader == 0:
+            self.lock_cache_mutex.release()
+        self.read_mutex.release()
+
+        if not value:
+            value = download(session, url)
+
+        self._handle_cache(url, value)

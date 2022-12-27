@@ -9,13 +9,6 @@ from read_file import read_all_image_urls_from_file
 
 thread_local = threading.local()
 
-RequestDownloadMutex = threading.Lock()
-WriteMutex = threading.Lock()
-ReadMutex = threading.Lock()
-Writer = 0
-Reader = 0
-# EditCache = threading.Lock()
-
 N = 0
 cache = None
 
@@ -26,74 +19,22 @@ def get_session():
     return thread_local.session
 
 
-def download(url):
-    session = get_session()
-    with session.get(url) as response:
-        return response.content
-
-
-def write_cache(key, value=None, sort=False):
-    global Writer
-
-    WriteMutex.acquire()
-    Writer += 1
-    if Writer == 1:
-        RequestDownloadMutex.acquire()
-    WriteMutex.release()
-
-    cache.lock.acquire()
-    # cache.put(key, value)
-    if sort or bool(cache.get(key)):
-        cache.sort_cache(key)
-    else:
-        cache.put(key, value)
-    cache.lock.release()
-
-    WriteMutex.acquire()
-    Writer -= 1
-    if Writer == 0:
-        RequestDownloadMutex.release()
-    WriteMutex.release()
-
-
 def request_download(url):
-    global Reader
-
-    RequestDownloadMutex.acquire()
-    ReadMutex.acquire()
-    Reader += 1
-    if Reader == 1:
-        cache.lock.acquire()
-    ReadMutex.release()
-    RequestDownloadMutex.release()
-
-    check_contains_key = cache.get(url)     # return node
-
-    ReadMutex.acquire()
-    Reader -= 1
-    if Reader == 0:
-        cache.lock.release()
-    ReadMutex.release()
-
-    value = None
-
-    if check_contains_key is None:
-        value = download(url)
-
-    write_cache(url, value, bool(check_contains_key))
+    session = get_session()
+    cache.download_image(session, url)
 
 
 def download_all_images():
     global N
     global cache
 
-    TH1_path = '../data2/TH1.txt'
-    TH2_path = '../data2/TH2.txt'
-    TH3_path = '../data2/TH3.txt'
-    TH4_path = '../data2/TH4.txt'
-    TH5_path = '../data2/TH5.txt'
-    debug = 'debug.txt'
-    urls = read_all_image_urls_from_file(TH5_path)
+    th1_path = '../data2/TH1.txt'
+    th2_path = '../data2/TH2.txt'
+    th3_path = '../data2/TH3.txt'
+    th4_path = '../data2/TH4.txt'
+    th5_path = '../data2/TH5.txt'
+    debug = '../debug.txt'
+    urls = read_all_image_urls_from_file(th3_path)
 
     if urls:
         N = len(urls)
@@ -109,6 +50,22 @@ if __name__ == '__main__':
     print(f'Downloaded {N} images in {duration} seconds')
 
 # Multithread xài threading:
+
+'''
+TH1:
+    Worker = 16 - 38.628791093826294 seconds
+    Worker = 50 - 46.8055784702301 seconds
+    Worker = 200 - 29.11229705810547 seconds
+    Worker = 500 - 100.8307113647461 seconds
+    Worker = 1000 - 131.70369815826416 seconds
+    
+TH2:
+    Worker = 16 - 5.296700716018677 seconds
+    Worker = 50 - 10.160197257995605 seconds
+    Worker = 200 - 61.19453048706055 seconds
+    Worker = 500 - 131.2691867351532 seconds
+    Worker = 1000 - 132.1524956226349 seconds
+'''
 
 # TH1: All URLs difference - Runtime: 39.14267134666443 seconds
 

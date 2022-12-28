@@ -83,45 +83,39 @@ class LRUCache:
         self._insert_head(node)
 
     def _handle_cache(self, key, value):
-        self.write_mutex.acquire()
-        self.writer += 1
-        if self.writer == 1:
-            self.download_mutex.acquire()
-        self.write_mutex.release()
+        with self.write_mutex:
+            self.writer += 1
+            if self.writer == 1:
+                self.download_mutex.acquire()
 
-        self.lock_cache_mutex.acquire()
-        if self._is_in_cache(key):
-            self._sort_cache(key)
-        else:
-            self._write_to_cache(key, value)
-        self.lock_cache_mutex.release()
+        with self.lock_cache_mutex:
+            if self._is_in_cache(key):
+                self._sort_cache(key)
+            else:
+                self._write_to_cache(key, value)
 
-        self.write_mutex.acquire()
-        self.writer -= 1
-        if self.writer == 0:
-            self.download_mutex.release()
-        self.write_mutex.release()
+        with self.write_mutex:
+            self.writer -= 1
+            if self.writer == 0:
+                self.download_mutex.release()
 
     def download_image(self, session, url):
         # thread_name = threading.current_thread().name
         # print(thread_name)
-        self.download_mutex.acquire()
-        self.read_mutex.acquire()
-        self.reader += 1
-        if self.reader == 1:
-            self.lock_cache_mutex.acquire()
-        self.read_mutex.release()
-        self.download_mutex.release()
+        with self.download_mutex:
+            with self.read_mutex:
+                self.reader += 1
+                if self.reader == 1:
+                    self.lock_cache_mutex.acquire()
 
         value = None
         if self._is_in_cache(url):
             value = self._read_from_cache(url)
 
-        self.read_mutex.acquire()
-        self.reader -= 1
-        if self.reader == 0:
-            self.lock_cache_mutex.release()
-        self.read_mutex.release()
+        with self.read_mutex:
+            self.reader -= 1
+            if self.reader == 0:
+                self.lock_cache_mutex.release()
 
         if not value:
             value = download(session, url)

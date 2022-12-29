@@ -134,5 +134,6 @@ class DownloadImageHandler(Iface):
     def download_image(self, url):      
         print(f'Server has received a download image request from url: {url}')
         image = self.cache.download_image(url)
-        print(f'Length of image: {len(image)}')
+        print(type(image))
+        # print(f'Length of image: {len(image)}')
         return 'Hi'

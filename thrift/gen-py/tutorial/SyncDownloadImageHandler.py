@@ -2,8 +2,7 @@ from DownloadImageService import *
 import requests
 
 
-def download(url):
-    session = requests.Session()
+def download(session, url):
     with session.get(url) as response:
         return response.content
 
@@ -86,7 +85,7 @@ class LRUCache:
             print('Write')
             self._write_to_cache(key, value)
 
-    def download_image(self, url):
+    def download_image(self, session, url):
         # thread_name = threading.current_thread().name
         # print(thread_name)
         value = None
@@ -94,7 +93,7 @@ class LRUCache:
             value = self._read_from_cache(url).value
 
         if not value:
-            value = download(url)
+            value = download(session, url)
 
         self._handle_cache(url, value)
         
@@ -104,9 +103,9 @@ class LRUCache:
 class DownloadImageHandler(Iface):
     def __init__(self) -> None:
         self.cache = LRUCache(100)
+        self.session = requests.Session()
     
     def download_image(self, url):      
         print(f'Server has received a download image request from url: {url}')
-        image = self.cache.download_image(url)
-        print(f'Length of image: {len(image)}')
-        return 'Hi'
+        image = self.cache.download_image(self.session, url)
+        return image

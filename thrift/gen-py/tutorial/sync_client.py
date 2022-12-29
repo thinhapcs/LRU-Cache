@@ -18,7 +18,7 @@ if __name__ == '__main__':
     th2_path = '../../../data2/TH2.txt'
     th3_path = '../../../data2/TH3.txt'
     
-    urls = read_all_image_urls_from_file(th1_path)
+    urls = read_all_image_urls_from_file(th2_path)
     
     transport.open()
     start_time = time.time()

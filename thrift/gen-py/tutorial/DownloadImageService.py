@@ -205,7 +205,7 @@ class download_image_result(object):
                 break
             if fid == 0:
                 if ftype == TType.STRING:
-                    self.success = iprot.readString().decode('utf-8', errors='replace') if sys.version_info[0] == 2 else iprot.readString()
+                    self.success = iprot.readBinary()
                 else:
                     iprot.skip(ftype)
             else:
@@ -220,7 +220,7 @@ class download_image_result(object):
         oprot.writeStructBegin('download_image_result')
         if self.success is not None:
             oprot.writeFieldBegin('success', TType.STRING, 0)
-            oprot.writeString(self.success.encode('utf-8') if sys.version_info[0] == 2 else self.success)
+            oprot.writeBinary(self.success)
             oprot.writeFieldEnd()
         oprot.writeFieldStop()
         oprot.writeStructEnd()
@@ -240,7 +240,7 @@ class download_image_result(object):
         return not (self == other)
 all_structs.append(download_image_result)
 download_image_result.thrift_spec = (
-    (0, TType.STRING, 'success', 'UTF8', None, ),  # 0
+    (0, TType.STRING, 'success', 'BINARY', None, ),  # 0
 )
 fix_spec(all_structs)
 del all_structs

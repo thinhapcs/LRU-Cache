@@ -1,5 +1,5 @@
 # server.py
-from DownloadImageHandler import DownloadImageHandler                    
+from SyncDownloadImageHandler import DownloadImageHandler                    
 from thrift.transport import TSocket                                        
 from thrift.transport import TTransport                                     
 from thrift.protocol import TBinaryProtocol                                 

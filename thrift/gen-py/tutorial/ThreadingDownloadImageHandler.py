@@ -1,6 +1,6 @@
 from DownloadImageService import *
-import threading
 import requests
+import threading
 
 
 def download(url):
@@ -105,7 +105,6 @@ class LRUCache:
     def download_image(self, url):
         # thread_name = threading.current_thread().name
         # print(thread_name)
-        print(f'Server has received a download image request from url: {url}')
         with self.download_mutex:
             with self.read_mutex:
                 self.reader += 1
@@ -127,8 +126,13 @@ class LRUCache:
         self._handle_cache(url, value)
 
 
+
 class DownloadImageHandler(Iface):
-    def download_image(self, url):
-        image = 'Hi'
+    def __init__(self) -> None:
+        self.cache = LRUCache(100)
+    
+    def download_image(self, url):      
         print(f'Server has received a download image request from url: {url}')
-        return image
+        image = self.cache.download_image(url)
+        print(f'Length of image: {len(image)}')
+        return 'Hi'

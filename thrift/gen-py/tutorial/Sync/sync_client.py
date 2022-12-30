@@ -1,6 +1,13 @@
  # client.py
-
 import time
+import path
+import sys
+
+# directory reach
+directory = path.Path(__file__).abspath()
+
+# setting path
+sys.path.append(directory.parent.parent)
 
 from thrift.transport import TSocket
 from thrift.protocol import TBinaryProtocol
@@ -14,11 +21,11 @@ if __name__ == '__main__':
     protocol = TBinaryProtocol.TBinaryProtocol(transport)
     client = Client(protocol)
     
-    th1_path = '../../../data2/TH1.txt'
-    th2_path = '../../../data2/TH2.txt'
-    th3_path = '../../../data2/TH3.txt'
+    th1_path = '../../../../data2/TH1.txt'
+    th2_path = '../../../../data2/TH2.txt'
+    th3_path = '../../../../data2/TH3.txt'
     
-    urls = read_all_image_urls_from_file(th2_path)
+    urls = read_all_image_urls_from_file(th1_path)
     
     transport.open()
     start_time = time.time()
@@ -31,10 +38,19 @@ if __name__ == '__main__':
     duration = time.time() - start_time
     print(f'Downloaded {len(urls)} images in {duration} seconds')
     transport.close()
-    
+
 '''
-TH1: 107.83436155319214 seconds
-TH2: 7.318430423736572 seconds
-TH3: 66.03992128372192 seconds
+TH1:    
+        Runtime: 107.83436155319214 seconds
+        Hit: 0.0%
+        Miss: 100.0%
+TH2:
+        Runtime: 7.318430423736572 seconds
+        Hit: 90.0%
+        Miss: 10.0%
+TH3: 
+        Runtime: 66.03992128372192 seconds
+        Hit: 39.9%
+        Miss: 60.1%
 '''
         

@@ -31,10 +31,8 @@ def download_all_images():
     th1_path = '../data2/TH1.txt'
     th2_path = '../data2/TH2.txt'
     th3_path = '../data2/TH3.txt'
-    th4_path = '../data2/TH4.txt'
-    th5_path = '../data2/TH5.txt'
     debug = '../debug.txt'
-    urls = read_all_image_urls_from_file(th3_path)
+    urls = read_all_image_urls_from_file(th1_path)
 
     if urls:
         N = len(urls)

@@ -1,10 +1,17 @@
-from DownloadImageService import *
 import requests
-import threading
+import path
+import sys
+
+# directory reach
+directory = path.Path(__file__).abspath()
+
+# setting path
+sys.path.append(directory.parent.parent)
+
+from DownloadImageService import *
 
 
-def download(url):
-    session = requests.Session()
+def download(session, url):
     with session.get(url) as response:
         return response.content
 
@@ -40,12 +47,6 @@ class LRUCache:
         self.cache = dict()
         self.head_node = None
         self.tail_node = None
-        self.writer = 0
-        self.reader = 0
-        self.download_mutex = threading.Lock()
-        self.read_mutex = threading.Lock()
-        self.write_mutex = threading.Lock()
-        self.lock_cache_mutex = threading.Lock()
 
     def _insert_head(self, node):
         if self.head_node is None:
@@ -86,54 +87,30 @@ class LRUCache:
         self._insert_head(node)
 
     def _handle_cache(self, key, value):
-        with self.write_mutex:
-            self.writer += 1
-            if self.writer == 1:
-                self.download_mutex.acquire()
+        if self._is_in_cache(key):
+            self._sort_cache(key)
+        else:
+            self._write_to_cache(key, value)
 
-        with self.lock_cache_mutex:
-            if self._is_in_cache(key):
-                self._sort_cache(key)
-            else:
-                self._write_to_cache(key, value)
-
-        with self.write_mutex:
-            self.writer -= 1
-            if self.writer == 0:
-                self.download_mutex.release()
-
-    def download_image(self, url):
-        # thread_name = threading.current_thread().name
-        # print(thread_name)
-        with self.download_mutex:
-            with self.read_mutex:
-                self.reader += 1
-                if self.reader == 1:
-                    self.lock_cache_mutex.acquire()
-
+    def download_image(self, session, url):
         value = None
         if self._is_in_cache(url):
-            value = self._read_from_cache(url)
-
-        with self.read_mutex:
-            self.reader -= 1
-            if self.reader == 0:
-                self.lock_cache_mutex.release()
+            value = self._read_from_cache(url).value
 
         if not value:
-            value = download(url)
+            value = download(session, url)
 
         self._handle_cache(url, value)
-
+        
+        return value
 
 
 class DownloadImageHandler(Iface):
     def __init__(self) -> None:
         self.cache = LRUCache(100)
+        self.session = requests.Session()
     
     def download_image(self, url):      
         print(f'Server has received a download image request from url: {url}')
-        image = self.cache.download_image(url)
-        print(type(image))
-        # print(f'Length of image: {len(image)}')
-        return 'Hi'
+        image = self.cache.download_image(self.session, url)
+        return image

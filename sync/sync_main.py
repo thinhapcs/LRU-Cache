@@ -1,5 +1,13 @@
 import requests
 import time
+import path
+import sys
+
+# directory reach
+directory = path.Path(__file__).abspath()
+
+# setting path
+sys.path.append(directory.parent.parent)
 
 from sync_lru_cache import LRUCache
 from read_file import read_all_image_urls_from_file
@@ -42,9 +50,7 @@ def download_all_images():
     TH1_path = '../data2/TH1.txt'
     TH2_path = '../data2/TH2.txt'
     TH3_path = '../data2/TH3.txt'
-    TH4_path = '../data2/TH4.txt'
-    TH5_path = '../data2/TH5.txt'
-    urls = read_all_image_urls_from_file(TH4_path)
+    urls = read_all_image_urls_from_file(TH1_path)
 
     if urls:
         N = len(urls)

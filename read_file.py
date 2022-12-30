@@ -1,4 +1,4 @@
-file_path = 'data2/default.txt'
+file_path = 'data2/TH1.txt'
 
 
 def read_all_image_urls_from_file(path=file_path):

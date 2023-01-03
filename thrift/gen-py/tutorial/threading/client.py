@@ -8,6 +8,7 @@ directory = path.Path(__file__).abspath()
 
 # setting path
 sys.path.append(directory.parent.parent)
+sys.path.append(directory.parent.parent.parent.parent.parent)
 
 import concurrent.futures
 
@@ -37,9 +38,9 @@ def download_image(url):
 if __name__ == '__main__':
     
     
-    th1_path = '../../../../data2/TH1.txt'
-    th2_path = '../../../../data2/TH2.txt'
-    th3_path = '../../../../data2/TH3.txt'
+    th1_path = 'TH1.txt'
+    th2_path = 'TH2.txt'
+    th3_path = 'TH3.txt'
     
     urls = read_all_image_urls_from_file(th1_path)
     

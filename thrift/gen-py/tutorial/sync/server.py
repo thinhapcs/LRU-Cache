@@ -8,7 +8,7 @@ directory = path.Path(__file__).abspath()
 # setting path
 sys.path.append(directory.parent.parent)
 
-from SyncDownloadImageHandler import DownloadImageHandler                    
+from DownloadImageHandler import DownloadImageHandler                    
 from thrift.transport import TSocket                                        
 from thrift.transport import TTransport                                     
 from thrift.protocol import TBinaryProtocol                                 

@@ -10,7 +10,7 @@ sys.path.append(directory.parent.parent)
 
 from DownloadImageService import *
 
-from ThreadingDownloadImageHandler import DownloadImageHandler                    
+from DownloadImageHandler import DownloadImageHandler                    
 from thrift.transport import TSocket                                        
 from thrift.transport import TTransport                                     
 from thrift.protocol import TBinaryProtocol                                 

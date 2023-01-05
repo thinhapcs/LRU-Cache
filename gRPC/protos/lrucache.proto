@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package lrucache;
+
+// The greeting service definition.
+service DownloadImage {
+  // Sends a greeting
+    rpc RequestDownloadImage (ImageRequest) returns (ImageResponse) {}
+}
+
+// The request message containing the user's name.
+message ImageRequest {
+    string url = 1;
+}
+
+// The response message containing the greetings
+message ImageResponse {
+    bytes image = 1;
+}

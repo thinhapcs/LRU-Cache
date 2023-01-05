@@ -2,7 +2,10 @@ file_path = 'TH1.txt'
 
 
 def read_all_image_urls_from_file(path=file_path):
-    path = f'/home/lap15768/Desktop/LRU-Cache/data2/{path}'
+    if path == 'debug.txt':
+        path = f'/home/lap15768/Desktop/LRU-Cache/{path}'
+    else:
+        path = f'/home/lap15768/Desktop/LRU-Cache/data2/{path}'
     
     urls = []
      
